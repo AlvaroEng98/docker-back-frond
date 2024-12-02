@@ -15,11 +15,11 @@ jobs:
       - name: Send email notification
         uses: dawidd6/action-send-mail@v2
         with:
-          server_address: mail.grancaribe.tur.cu
-          server_port: 995
+          server_address: smtp.gmail.com
+          server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Workflow Notification"
           body: "The workflow has completed successfully."
-          to: alvaro.eng.98@gmail.com
-          from: "alvaro@grancaribe.gca.tur.cu"
+          to: alvaro@grancaribe.gca.tur.cu
+          from: "alvaro"
