@@ -1,0 +1,62 @@
+name: Build and Deploy
+
+on:
+    push: 
+        branches: [ "develop" ]
+        
+        paths: 
+            - 'backend/**' #solo se ejecuta si hay cambios 
+            - 'frontend/**' #solo si hay cambios en el frontend
+
+
+jobs:
+
+    build-backend:
+        if: ${{ github.event.commits | contains('backend/') }}
+        
+        runs-on: ubuntu-latest
+
+        steps:
+        
+            - name: Checkout code
+              id: checkout
+              uses: actions/checkout@v4
+
+
+            - name: Build Backend Image
+              run: |
+                docker build -t  backend_ofertas-ofertas-web:latest ./backend
+
+    build-frontend:
+        if: ${{ github.event.commits | contains('frontend/') }}
+                    
+        runs-on: ubuntu-latest
+            
+        steps:
+                    
+            - name: Checkout code
+              id: checkout
+              uses: actions/checkout@v4
+            
+            
+            - name: Build Frontend Image
+              run: |
+                docker build -t  ofertas-frontend-ofertas-web:latest ./frontend
+
+
+            # mejorar el semantic version
+            #- name: Semantic Version Github
+            #  id: version
+            #  uses: PaulHatch/semantic-version@v4.0.3
+            #  with:
+            #      major_pattern: "major:"
+            #      minor_pattern: "feat:"
+            #      format: "${major}.${minor}.${patch}-prerelease${increment}"
+            #      
+            #- name: Build Docker Image
+            #  env:
+            #    NEW_VERSION: ${{ steps.version.outputs.version }}
+#
+            #  run: |
+            #    docker build -t backend_ofertas-ofertas-web 
+
