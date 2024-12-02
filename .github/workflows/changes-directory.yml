@@ -21,13 +21,13 @@ jobs:
         with:
           files: backend/**  # Monitorea todos los archivos dentro del directorio backend
 
-      - name: Run job if changes detected in frontend
+      - name: Cambios en el backend
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: echo "Changes detected in the frontend directory."
+        run: echo "Ejecutando el dockerfile de Backend"
 
 
 
-      - name: Get changed files in frontend directory
+      - name: Cambios en el Frontend
         id: changed-frontend
         uses: tj-actions/changed-files@v45  ## verificar si cambio algun directorio
         with:
@@ -35,5 +35,5 @@ jobs:
 
       - name: Run job if changes detected
         if: steps.changed-frontend.outputs.any_changed == 'true'
-        run: echo "Changes detected in the frontend directory."
+        run: echo "Ejecutando el dockerfile de Frontend"
 
