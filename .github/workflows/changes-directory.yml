@@ -1,0 +1,29 @@
+name: Check Directory Changes
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes in src directory
+        id: check_changes
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^src/'; then
+            echo "Changes detected in src directory."
+          else
+            echo "no_changes"
+          fi
+
+      - name: Run job if changes detected
+        if: steps.check_changes.outputs.changes != 'no_changes'
+        run: echo "Running the job because changes were detected."
