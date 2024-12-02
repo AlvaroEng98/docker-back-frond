@@ -1,0 +1,19 @@
+name: test1
+
+
+on:
+    pull_request:  
+        branches: [ "main" ]
+        
+        paths: 
+            - 'backend/**' #solo se ejecuta si hay cambios 
+            - 'frontend/**' #solo si hay cambios en el frontend
+
+
+jobs:
+
+    test:
+        runs-on: ubuntu-18.04
+        steps:
+            - name: test11
+              run: echo "hola"
