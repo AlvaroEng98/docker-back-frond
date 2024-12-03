@@ -80,7 +80,7 @@ jobs:
 
     steps:
       - name: Build the Backend Image
-        if: steps.changed-backend-files.outputs.any_changed == 'true'
+        if: needs.check_changes.outputs.changed-backend-files == 'true' && success()
         run: |
           echo steps.changed-backend-files.outputs.any_changed
           docker build ./backend --file ./backend/Dockerfile 
