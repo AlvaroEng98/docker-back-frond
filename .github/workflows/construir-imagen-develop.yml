@@ -82,6 +82,7 @@ jobs:
       - name: Build the Backend Image
         if: steps.changed-backend-files.outputs.any_changed == 'true'
         run: |
+          echo steps.changed-backend-files.outputs.any_changed
           docker build ./backend --file ./backend/Dockerfile 
           echo "Imagen del Backend construida"
 
