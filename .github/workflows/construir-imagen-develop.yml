@@ -85,6 +85,10 @@ jobs:
     needs: [check_changes, run_tests]
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+        
       - name: Build the Backend Image
         if: needs.check_changes.outputs.backend_changed
         run: |
