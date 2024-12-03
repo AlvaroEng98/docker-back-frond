@@ -94,13 +94,17 @@ jobs:
         run: |
           docker build ./backend --file ./backend/Dockerfile 
           echo "Imagen del Backend construida"
+          echo "El valor de MY_VARIABLE es: $backend_changed"
+
 
       - name: Build the Frontend Image
         if: needs.check_changes.outputs.frontend_changed
         run: |
           docker build ./frontend --file ./frontend/Dockerfile 
           echo "Imagen del Frontend construida"
+          echo "El valor de MY_VARIABLE es: $frontend_changed"
 
+          
       - name: Success
         run: | 
           echo "Proceso ejecutado correctamente"
