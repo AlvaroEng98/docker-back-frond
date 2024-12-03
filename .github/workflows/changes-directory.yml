@@ -1,39 +1,39 @@
-name: Check Backend Directory Changes
+name: Build and Test Images
 
 on:
   push:
     branches:
-      - main  # Cambia esto según la rama que desees monitorear
-  pull_request:
-    branches:
-      - main
+      - 'main'
+      - 'master'
 
 jobs:
   check_changes:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Get changed files in backend directory 
-        id: changed-files
+
+      - name: Check changes in backend directory
+        id: changed-backend-files
         uses: tj-actions/changed-files@v45  ## verificar si cambio algun directorio
         with:
-          files: backend/**  # Monitorea todos los archivos dentro del directorio backend
+          files: backend/**
 
-      - name: Cambios en el backend
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: echo "Ejecutando el dockerfile de Backend"
+      - name: Build the Backend Image
+        if: steps.changed-backend-files.outputs.any_changed == 'true'
+        run: |
+          docker build ./backend --file ./backend/Dockerfile 
+          echo "Funciono el backend"
 
-
-      - name: Get changed files in frontend directory
-
-        id: changed-frontend
+      - name: Check changes in frontend directory
+        id: changed-frontend-files
         uses: tj-actions/changed-files@v45  ## verificar si cambio algun directorio
         with:
-          files: frontend/**  # Monitorea todos los archivos dentro del directorio backend
+          files: frontend/**
 
-      - name: Cambios en el Frontend
-        if: steps.changed-frontend.outputs.any_changed == 'true'
-        run: echo "Ejecutando el dockerfile de Frontend"
-
+      - name: Build the Frontend Image
+        if: steps.changed-frontend-files.outputs.any_changed == 'true'
+        run: |
+          docker build ./frontend --file ./frontend/Dockerfile 
+          echo "Funciono el frontend"
