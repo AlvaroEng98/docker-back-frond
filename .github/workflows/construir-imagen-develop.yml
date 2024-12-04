@@ -1,4 +1,4 @@
-name: Check Changes in Folders
+name: Check Changes and build images
 
 on:
   push:
