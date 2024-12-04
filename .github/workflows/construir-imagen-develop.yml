@@ -68,9 +68,6 @@ jobs:
         with:
           files: frontend/**
 
-      - name: Debug Frontend Changes
-        run: echo "Archivos cambiados en Frontend: ${{ steps.changed-frontend-files.outputs.files }}"
-
       - name: Set up Node.js ${{ matrix.node-version }}
         if: ${{ steps.changed-frontend-files.outputs.files != '' }}
         uses: actions/setup-node@v4
