@@ -6,7 +6,6 @@ on:
       - 'main'
       - 'master'
 
-
 jobs:
   check_backend_changes:
     runs-on: ubuntu-latest
@@ -21,37 +20,40 @@ jobs:
 
       - name: Check changes in backend directory
         id: changed-backend-files
-        uses: tj-actions/changed-files@v45  ## verificar si cambio algun directorio
+        uses: tj-actions/changed-files@v45
         with:
           files: backend/**
 
       - name: Set up Python ${{ matrix.python-version }}
+        if: ${{ steps.changed-backend-files.outputs.files != '' }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}      
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
+        if: ${{ steps.changed-backend-files.outputs.files != '' }}
         run: |
           cd backend
           ls
           pip install pytest
           pip install coverage
-        #  pip install -r requirements.txt
+        # pip install -r requirements.txt
 
-                
       - name: Run Backend tests
+        if: ${{ steps.changed-backend-files.outputs.files != '' }}
         run: |
           cd backend
         # python manage.py test
-        
+
       - name: Build the Backend Image
+        if: ${{ steps.changed-backend-files.outputs.files != '' }}
         run: |
-          docker build ./backend --file ./backend/Dockerfile 
+          docker build -t backend-image:latest ./backend -f ./backend/Dockerfile
           echo "Imagen del Backend construida"
 
   check_frontend_changes:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x]
@@ -62,32 +64,40 @@ jobs:
 
       - name: Check changes in frontend directory
         id: changed-frontend-files
-        uses: tj-actions/changed-files@v45 
+        uses: tj-actions/changed-files@v45
         with:
           files: frontend/**
 
+      - name: Debug Frontend Changes
+        run: echo "Archivos cambiados en Frontend: ${{ steps.changed-frontend-files.outputs.files }}"
+
       - name: Set up Node.js ${{ matrix.node-version }}
+        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Install pnpm
+        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
         run: |
           npm install -g pnpm
 
       - name: Install dependencies
+        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
         run: |
-          cd frontend 
-        #  pnpm install
+          cd frontend
+        # pnpm install
 
       - name: Run tests
+        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
         run: |
-          cd frontend 
-        # pnpm vitest  # Asegúrate de que este comando esté definido en tu package.json
-          
+          cd frontend
+        # pnpm vitest
+
       - name: Build the Frontend Image
+        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
         run: |
-          docker build ./frontend --file ./frontend/Dockerfile 
+          docker build -t frontend-image:latest ./frontend -f ./frontend/Dockerfile
           echo "Imagen del Frontend construida"
 
   build_images:
@@ -96,5 +106,4 @@ jobs:
 
     steps:
       - name: Notification
-        run: | 
-          echo "Proceso ejecutado correctamente"
+        run: echo "Proceso ejecutado correctamente"
