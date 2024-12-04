@@ -34,9 +34,10 @@ jobs:
         run: |
           cd backend
           ls
-      #  pip install -r requirements.txt
           pip install pytest
           pip install coverage
+        #  pip install -r requirements.txt
+
                 
       - name: Run Backend tests
         run: |
