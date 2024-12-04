@@ -44,8 +44,8 @@ jobs:
           files: frontend/**
          
       - name: Build the Frontend Image
+        if: steps.changed-frontend-files.outputs.any_changed == 'true'
         run: |
-          if: steps.changed-frontend-files.outputs.any_changed == 'true'
           docker build ./frontend --file ./frontend/Dockerfile 
           echo "Imagen del Frontend construida"
 
