@@ -1,26 +1,58 @@
-name: Check Changes and build images
+name: Build and Test Images
 
 on:
   push:
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
+    branches:
+      - 'main'
+      - 'master'
+
 
 jobs:
-  check_changes:
+  check_backend_changes:
     runs-on: ubuntu-latest
+    
+    steps:  
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check changes in backend directory
+        id: changed-backend-files
+        uses: tj-actions/changed-files@v45  ## verificar si cambio algun directorio
+        with:
+          files: backend/**
+    
+        
+      - name: Build the Backend Image
+        if: steps.changed-backend-files.outputs.any_changed == 'true'
+
+        run: |
+          docker build ./backend --file ./backend/Dockerfile 
+          echo "Imagen del Backend construida"
+
+  check_frontend_changes:
+    runs-on: ubuntu-latest
+    
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Check for changes in backend folder
+      - name: Check changes in frontend directory
+        id: changed-frontend-files
+        uses: tj-actions/changed-files@v45 
+        with:
+          files: frontend/**
+         
+      - name: Build the Frontend Image
         run: |
-          if git diff --name-only HEAD^ HEAD | grep -q '^backend/'; then
-            echo "Changes detected in the backend/ folder";
-          fi
+          if: steps.changed-frontend-files.outputs.any_changed == 'true'
+          docker build ./frontend --file ./frontend/Dockerfile 
+          echo "Imagen del Frontend construida"
 
-      - name: Check for changes in frontend folder
-        run: |
-          if git diff --name-only HEAD^ HEAD | grep -q '^frontend/'; then
-            echo "Changes detected in the frontend/ folder";
-          fi
+  build_images:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notification
+        run: | 
+          echo "Proceso ejecutado correctamente"
