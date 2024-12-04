@@ -6,96 +6,94 @@ on:
       - 'main'
       - 'master'
 
+
 jobs:
-  check_changes:
+  check_backend_changes:
     runs-on: ubuntu-latest
 
-    steps:
+    strategy:
+      matrix:
+        python-version: [3.11]
+    
+    steps:  
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Check changes in backend directory
         id: changed-backend-files
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v45  ## verificar si cambio algun directorio
         with:
           files: backend/**
-
-      - name: Check changes in frontend directory
-        id: changed-frontend-files
-        uses: tj-actions/changed-files@v45
-        with:
-          files: frontend/**
-
-  run_tests:
-    runs-on: ubuntu-latest
-    needs: check_changes
-
-    strategy:
-      matrix:
-        python-version: [3.11]
-
-    steps:
-      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}      
 
-      - name: Install Backend dependencies
-        if: ${{ steps.changed-backend-files.outputs.files != '' }}
+      - name: Install dependencies
         run: |
           cd backend
-       #   pip install -r requirements.txt
-       #   pip install pytest coverage
-
+          ls
+          pip install -r requirements.txt
+          pip install pytest
+          pip install coverage
+                
       - name: Run Backend tests
-        if: ${{ steps.changed-backend-files.outputs.files != '' }}
         run: |
           cd backend
-        #  python manage.py test
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install pnpm for Frontend
-        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
+        # python manage.py test
+        
+      - name: Build the Backend Image
         run: |
-       #   npm install -g pnpm
+          docker build ./backend --file ./backend/Dockerfile 
+          echo "Imagen del Backend construida"
 
-      - name: Install Frontend dependencies
-        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
-        run: |
-          cd frontend
-       #   pnpm install
-
-      - name: Run Frontend tests
-        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
-        run: |
-          cd frontend
-       #   pnpm vitest
-
-  build_images:
+  check_frontend_changes:
     runs-on: ubuntu-latest
-    needs: [run_tests, check_changes]
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build the Backend Image
-        if: ${{ steps.changed-backend-files.outputs.files != '' }}
-        run: |
-          docker build -t backend-image:latest ./backend -f ./backend/Dockerfile
-          echo "Imagen del Backend construida"
+      - name: Check changes in frontend directory
+        id: changed-frontend-files
+        uses: tj-actions/changed-files@v45 
+        with:
+          files: frontend/**
 
-      - name: Build the Frontend Image
-        if: ${{ steps.changed-frontend-files.outputs.files != '' }}
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install pnpm
         run: |
-          docker build -t frontend-image:latest ./frontend -f ./frontend/Dockerfile
+          npm install -g pnpm
+
+      - name: Install dependencies
+        run: |
+          cd frontend 
+          pnpm install
+
+      - name: Run tests
+        run: |
+          cd frontend 
+        # pnpm vitest  # Asegúrate de que este comando esté definido en tu package.json
+          
+      - name: Build the Frontend Image
+        run: |
+          docker build ./frontend --file ./frontend/Dockerfile 
           echo "Imagen del Frontend construida"
 
-      - name: Success
-        run: echo "Proceso ejecutado correctamente"
+  build_images:
+    runs-on: ubuntu-latest
+    needs: [check_backend_changes, check_frontend_changes]
+
+    steps:
+      - name: Notification
+        run: | 
+          echo "Proceso ejecutado correctamente"
